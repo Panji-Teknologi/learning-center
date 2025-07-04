@@ -34,9 +34,11 @@ export default function ProgramsSection({
     const keywordMatch = course.title
       ?.toLowerCase()
       .includes(keyword.toLowerCase());
-    const categoryMatch = course.categoryName
-      ?.toLowerCase()
-      .includes(category.toLowerCase());
+
+    const categoryMatch =
+      category.length === 0 ||
+      (course.categoryName &&
+        category.includes(course.categoryName.toLowerCase()));
 
     return keywordMatch && categoryMatch;
   });
@@ -56,65 +58,68 @@ export default function ProgramsSection({
       ) : filteredCourses.length > 0 ? (
         <Fragment>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-10">
-            {filteredCourses.map((items, i) => (
-              <Card
-                key={i}
-                className="flex flex-col justify-between min-h-[420px] hover:scale-105 hover:shadow-xl transition-transform duration-300 border rounded-2xl"
-              >
-                <CardContent className="flex flex-col justify-between h-full p-5">
-                  <div>
-                    <div className="relative w-full mb-4 overflow-hidden rounded-xl bg-gray-100">
-                      <CourseImageCard
-                        imageKey={items.imageUrl}
-                        courseId={items.id}
-                        courseTitle={items.title}
-                        className="aspect-video w-full"
-                      />
-                      <div className="absolute top-2 right-2 bg-white text-sky-600 text-xs px-3 py-1 rounded-full shadow">
-                        <p className="font-bold">
-                          {formatPrice(items.price ?? 0)}
-                        </p>
+            {filteredCourses.map((items, i) => {
+              console.log(items);
+              return (
+                <Card
+                  key={i}
+                  className="flex flex-col justify-between min-h-[420px] hover:scale-105 hover:shadow-xl transition-transform duration-300 border rounded-2xl"
+                >
+                  <CardContent className="flex flex-col justify-between h-full p-5">
+                    <div>
+                      <div className="relative w-full mb-4 overflow-hidden rounded-xl bg-gray-100">
+                        <CourseImageCard
+                          imageKey={items.imageUrl}
+                          courseId={items.id}
+                          courseTitle={items.title}
+                          className="aspect-video w-full"
+                        />
+                        <div className="absolute top-2 right-2 bg-white text-sky-600 text-xs px-3 py-1 rounded-full shadow">
+                          <p className="font-bold">
+                            {formatPrice(items.price ?? 0)}
+                          </p>
+                        </div>
                       </div>
+
+                      <h3 className="font-semibold text-lg mb-1 text-gray-800 line-clamp-2">
+                        {items.title ?? t("programs_noTitle")}
+                      </h3>
+
+                      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                        {items.description ?? t("programs_noDescription")}
+                      </p>
+
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <Badge
+                          variant="secondary"
+                          className="text-xs bg-sky-50 text-sky-700 border-sky-200"
+                        >
+                          {items.categoryName ?? t("programs_noCategory")}
+                        </Badge>
+                        <Badge
+                          variant="outline"
+                          className="text-xs bg-teal-50 text-teal-600 border-teal-200"
+                        >
+                          {items.level ?? t("programs_noLevel")}
+                        </Badge>
+                      </div>
+
+                      <p className="text-xs text-gray-500 italic">
+                        {tCommon("by")}{" "}
+                        {items.teacherName ?? t("programs_noTeacher")}
+                      </p>
                     </div>
 
-                    <h3 className="font-semibold text-lg mb-1 text-gray-800 line-clamp-2">
-                      {items.title ?? t("programs_noTitle")}
-                    </h3>
-
-                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                      {items.description ?? t("programs_noDescription")}
-                    </p>
-
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <Badge
-                        variant="secondary"
-                        className="text-xs bg-sky-50 text-sky-700 border-sky-200"
-                      >
-                        {items.categoryName ?? t("programs_noCategory")}
-                      </Badge>
-                      <Badge
-                        variant="outline"
-                        className="text-xs bg-teal-50 text-teal-600 border-teal-200"
-                      >
-                        {items.level ?? t("programs_noLevel")}
-                      </Badge>
-                    </div>
-
-                    <p className="text-xs text-gray-500 italic">
-                      {tCommon("by")}{" "}
-                      {items.teacherName ?? t("programs_noTeacher")}
-                    </p>
-                  </div>
-
-                  <Button
-                    onClick={() => router.push(`/program-detail/${items.id}`)}
-                    className="w-full mt-4 bg-sky-600 text-white hover:bg-black rounded-xl shadow-md transition"
-                  >
-                    {t("programs_register")}
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+                    <Button
+                      onClick={() => router.push(`/program-detail/${items.id}`)}
+                      className="w-full mt-4 bg-sky-600 text-white hover:bg-black rounded-xl shadow-md transition"
+                    >
+                      {t("programs_register")}
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
 
           <div className="text-center mt-4">

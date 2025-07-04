@@ -8,64 +8,15 @@ import clsx from "clsx";
 import { Button } from "@/components/ui/button";
 import CareersShimmer from "./shimmer/careers-shimmer";
 import { useTranslations } from "next-intl";
-
-const companies = [
-  {
-    id: "tsi",
-    name: "TSI",
-    jobs: [
-      {
-        title: "Frontend Developer",
-        location: "Jakarta",
-        description: "Mengembangkan dan memelihara fitur antarmuka pengguna.",
-      },
-      {
-        title: "QA Tester",
-        location: "Remote",
-        description: "Menjamin kualitas perangkat lunak melalui pengujian.",
-      },
-    ],
-  },
-  {
-    id: "dms",
-    name: "DMS",
-    jobs: [
-      {
-        title: "Project Manager",
-        location: "Bandung",
-        description: "Memimpin proyek dan mengoordinasi tim.",
-      },
-    ],
-  },
-  {
-    id: "jit",
-    name: "JIT",
-    jobs: [
-      {
-        title: "Backend Developer",
-        location: "Surabaya",
-        description: "Membangun dan memelihara API backend.",
-      },
-    ],
-  },
-  {
-    id: "pts",
-    name: "Panji Teknologi Services",
-    jobs: [
-      {
-        title: "IT Support Specialist",
-        location: "Yogyakarta",
-        description: "Memberikan dukungan teknis dan menjaga infrastruktur TI.",
-      },
-    ],
-  },
-];
+import { useCompaniesWithJobs } from "@/hooks/use-companies";
 
 export default function CareersPage() {
   const t = useTranslations("landing");
   const router = useRouter();
 
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { data, isLoading: isLoadingCompanies } = useCompaniesWithJobs();
+
+  const companies = data?.companies ?? [];
 
   const [selectedTab, setSelectedTab] = useState<string>("all");
 
@@ -82,11 +33,6 @@ export default function CareersPage() {
     selectedTab === "all"
       ? allJobs
       : allJobs.filter((job) => job.companyId === selectedTab);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => setIsLoading(false), 1500);
-    return () => clearTimeout(timeout);
-  }, []);
 
   return (
     <section className="bg-white py-24 px-6">
@@ -111,6 +57,7 @@ export default function CareersPage() {
               >
                 {t("careers_allCompanies")}
               </TabsTrigger>
+
               {companies.map((company) => (
                 <TabsTrigger
                   key={company.id}
@@ -128,32 +75,40 @@ export default function CareersPage() {
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {isLoading
+          {isLoadingCompanies
             ? Array.from({ length: 6 }).map((_, idx) => (
                 <CareersShimmer key={idx} />
               ))
-            : filteredJobs.map((job, idx) => (
-                <Card
-                  key={idx}
-                  onClick={() => router.push(`/careers/${job.careersId}`)}
-                  className="cursor-pointer bg-white rounded-2xl border border-sky-100 shadow-md hover:shadow-xl transition-all duration-300 group"
-                >
-                  <CardContent className="p-6">
-                    <h3 className="text-base text-sky-600 font-semibold mb-1">
-                      {job.companyName}
-                    </h3>
-                    <h5 className="text-lg font-bold text-gray-800 mb-1 group-hover:text-sky-700">
-                      {job.title}
-                    </h5>
-                    <p className="text-sm text-gray-500 mb-1">
-                      📍 {job.location}
-                    </p>
-                    <p className="text-sm text-gray-600 leading-snug">
-                      {job.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
+            : filteredJobs.map((job, idx) => {
+                return (
+                  <Card
+                    key={idx}
+                    onClick={() =>
+                      router.push(
+                        `/careers/${job.careersId}?company=${encodeURIComponent(
+                          job.companyName
+                        )}`
+                      )
+                    }
+                    className="cursor-pointer bg-white rounded-2xl border border-sky-100 shadow-md hover:shadow-xl transition-all duration-300 group"
+                  >
+                    <CardContent className="p-6">
+                      <h3 className="text-base text-sky-600 font-semibold mb-1">
+                        {job.companyName}
+                      </h3>
+                      <h5 className="text-lg font-bold text-gray-800 mb-1 group-hover:text-sky-700">
+                        {job.title}
+                      </h5>
+                      <p className="text-sm text-gray-500 mb-1">
+                        📍 {job.location}
+                      </p>
+                      <p className="text-sm text-gray-600 leading-snug">
+                        {job.description}
+                      </p>
+                    </CardContent>
+                  </Card>
+                );
+              })}
         </div>
 
         <div className="flex justify-center mt-10">

@@ -1,79 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import clsx from "clsx";
 import CareersShimmer from "@/views/landing/shimmer/careers-shimmer";
 import { useTranslations } from "next-intl";
-
-const companies = [
-  {
-    id: "tsi",
-    name: "TSI",
-    jobs: [
-      {
-        title: "Frontend Developer",
-        location: "Jakarta",
-        description: "Mengembangkan dan memelihara fitur antarmuka pengguna.",
-        level: "PEMULA",
-        price: 0,
-        category: "Teknologi & Pemrograman",
-      },
-      {
-        title: "QA Tester",
-        location: "Remote",
-        description: "Memastikan kualitas perangkat lunak melalui pengujian.",
-        level: "MENENGAH",
-        price: 10000,
-        category: "Sertifikasi Profesional",
-      },
-    ],
-  },
-  {
-    id: "dms",
-    name: "DMS",
-    jobs: [
-      {
-        title: "Project Manager",
-        location: "Bandung",
-        description: "Memimpin proyek dan mengoordinasikan tim.",
-        level: "LANJUT",
-        price: 0,
-        category: "Bisnis & Manajemen",
-      },
-    ],
-  },
-  {
-    id: "jit",
-    name: "JIT",
-    jobs: [
-      {
-        title: "Backend Developer",
-        location: "Surabaya",
-        description: "Membangun dan memelihara API backend.",
-        level: "PEMULA",
-        price: 5000,
-        category: "Teknologi & Pemrograman",
-      },
-    ],
-  },
-  {
-    id: "pts",
-    name: "Panji Teknologi Services",
-    jobs: [
-      {
-        title: "IT Support Specialist",
-        location: "Yogyakarta",
-        description: "Memberikan dukungan teknis dan menjaga infrastruktur TI.",
-        level: "MENENGAH",
-        price: 7000,
-        category: "Teknologi & Pemrograman",
-      },
-    ],
-  },
-];
+import { useCompaniesWithJobs } from "@/hooks/use-companies";
+import { Input } from "@/components/ui/input";
 
 const categories = [
   "Bisnis & Manajemen",
@@ -89,6 +24,10 @@ export default function AllCareersView() {
   const router = useRouter();
   const t = useTranslations("careers");
 
+  const { data, isLoading: isLoadingCompanies } = useCompaniesWithJobs();
+
+  const companies = data?.companies ?? [];
+
   const [selectedCompanies, setSelectedCompanies] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
@@ -96,8 +35,6 @@ export default function AllCareersView() {
   const [minPrice, setMinPrice] = useState<number | undefined>();
   const [maxPrice, setMaxPrice] = useState<number | undefined>();
   const [showFilter, setShowFilter] = useState(false);
-
-  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const toggleFilter = (
     filter: string,
@@ -137,18 +74,13 @@ export default function AllCareersView() {
       selectedLocations.length === 0 ||
       selectedLocations.includes(job.location);
     const matchPrice =
-      (minPrice === undefined || job.price >= minPrice) &&
-      (maxPrice === undefined || job.price <= maxPrice);
+      (minPrice === undefined || job.salary >= minPrice) &&
+      (maxPrice === undefined || job.salary <= maxPrice);
 
     return (
       matchCompany && matchCategory && matchLevel && matchLocation && matchPrice
     );
   });
-
-  useEffect(() => {
-    const timeout = setTimeout(() => setIsLoading(false), 1500);
-    return () => clearTimeout(timeout);
-  }, []);
 
   return (
     <section className="bg-white px-6">
@@ -265,25 +197,25 @@ export default function AllCareersView() {
               </div>
             </div>
 
-            {/* <div>
-                <h4 className="text-sm font-medium text-gray-700 mb-2">
-                  Rentang Gaji (Rp)
-                </h4>
-                <div className="flex gap-2">
-                  <Input
-                    type="number"
-                    placeholder="Min"
-                    className="w-full"
-                    onChange={(e) => setMinPrice(Number(e.target.value))}
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Max"
-                    className="w-full"
-                    onChange={(e) => setMaxPrice(Number(e.target.value))}
-                  />
-                </div>
-              </div> */}
+            <div>
+              <h4 className="text-sm font-medium text-gray-700 mb-2">
+                Rentang Gaji (Rp)
+              </h4>
+              <div className="flex gap-2">
+                <Input
+                  type="number"
+                  placeholder="Min"
+                  className="w-full"
+                  onChange={(e) => setMinPrice(Number(e.target.value))}
+                />
+                <Input
+                  type="number"
+                  placeholder="Max"
+                  className="w-full"
+                  onChange={(e) => setMaxPrice(Number(e.target.value))}
+                />
+              </div>
+            </div>
 
             <div className="pt-2">
               <button
@@ -304,36 +236,47 @@ export default function AllCareersView() {
 
           <div className="lg:col-span-4">
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {isLoading ? (
+              {isLoadingCompanies ? (
                 Array.from({ length: 6 }).map((_, idx) => (
                   <CareersShimmer key={idx} />
                 ))
               ) : filteredJobs.length > 0 ? (
-                filteredJobs.map((job) => (
-                  <Card
-                    key={job.jobKey}
-                    onClick={() => router.push(`/careers/${job.jobKey}`)}
-                    className="cursor-pointer bg-white rounded-2xl border border-sky-100 shadow-md hover:shadow-xl transition-all duration-300 group"
-                  >
-                    <CardContent className="p-6">
-                      <h3 className="text-sm text-sky-600 font-semibold mb-1">
-                        {job.companyName}
-                      </h3>
-                      <h5 className="text-lg font-bold text-gray-800 mb-1 group-hover:text-sky-700">
-                        {job.title}
-                      </h5>
-                      <p className="text-sm text-gray-500 mb-1">
-                        📍 {job.location}
-                      </p>
-                      <p className="text-sm text-gray-600 leading-snug mb-2">
-                        {job.description}
-                      </p>
-                      <span className="inline-block text-xs font-medium px-2 py-0.5 bg-sky-100 text-sky-800 rounded">
-                        {job.level}
-                      </span>
-                    </CardContent>
-                  </Card>
-                ))
+                filteredJobs.map((job, idx) => {
+                  return (
+                    <Card
+                      key={idx}
+                      onClick={() =>
+                        router.push(
+                          `/careers/${job.jobKey}?company=${encodeURIComponent(
+                            job.companyName
+                          )}`
+                        )
+                      }
+                      className="cursor-pointer bg-white rounded-2xl border border-sky-100 shadow-md hover:shadow-xl transition-all duration-300 group"
+                    >
+                      <CardContent className="p-6">
+                        <h3 className="text-sm text-sky-600 font-semibold mb-1">
+                          {job.companyName}
+                        </h3>
+                        <h5 className="text-lg font-bold text-gray-800 mb-1 group-hover:text-sky-700">
+                          {job.title}
+                        </h5>
+                        <p className="text-sm text-gray-500 mb-1">
+                          📍 {job.location}
+                        </p>
+                        <p className="text-sm text-gray-700 mb-2">
+                          💰 Rp{job.salary.toLocaleString("id-ID")}
+                        </p>
+                        <p className="text-sm text-gray-600 leading-snug mb-2">
+                          {job.description}
+                        </p>
+                        <span className="inline-block text-xs font-medium px-2 py-0.5 bg-sky-100 text-sky-800 rounded">
+                          {job.level}
+                        </span>
+                      </CardContent>
+                    </Card>
+                  );
+                })
               ) : (
                 <p className="text-gray-500 text-sm col-span-full">
                   {t("careers_not_found")}

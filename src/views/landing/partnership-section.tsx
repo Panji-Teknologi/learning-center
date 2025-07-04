@@ -2,11 +2,6 @@
 
 import { useKeenSlider } from "keen-slider/react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import tsiLogo from "@/assets/companies-logo/tsi.png";
-import dmsLogo from "@/assets/companies-logo/dms.png";
-import jitLogo from "@/assets/companies-logo/jit.png";
-import ptsLogo from "@/assets/companies-logo/pts.png";
 import PartnerShimmer from "./shimmer/partner-shimmer";
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";

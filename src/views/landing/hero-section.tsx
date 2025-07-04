@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useAllCourses } from "@/hooks/use-courses";
 import {
   Select,
   SelectContent,
@@ -13,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import CategoryShimmer from "./shimmer/category-shimmer";
 import { useTranslations } from "next-intl";
+import { useCategories } from "@/hooks/use-categories";
 
 interface HeroSectionProps {
   onSearch: (keyword: string, category: string) => void;
@@ -21,8 +21,7 @@ interface HeroSectionProps {
 export default function HeroSection({ onSearch }: HeroSectionProps) {
   const t = useTranslations("landing");
 
-  const { data, isLoading } = useAllCourses();
-  const categories = data?.categories ?? [];
+  const { data: categories, isLoading } = useCategories();
 
   const [keyword, setKeyword] = useState("");
   const [category, setCategory] = useState("");
@@ -43,9 +42,9 @@ export default function HeroSection({ onSearch }: HeroSectionProps) {
       <div className="flex flex-wrap justify-center items-center gap-x-2 text-muted-foreground mb-8 text-sm md:text-base">
         {isLoading
           ? Array.from({ length: 6 }).map((_, i) => <CategoryShimmer key={i} />)
-          : categories.map((item, index) => (
+          : categories?.map((item, index) => (
               <span key={index} className="flex items-center">
-                {index < categories.length && <span className="mx-1">•</span>}
+                {index < categories?.length && <span className="mx-1">•</span>}
                 {t(`categories_${item.name}`) ?? item?.name}
               </span>
             ))}
@@ -66,7 +65,7 @@ export default function HeroSection({ onSearch }: HeroSectionProps) {
               <SelectValue placeholder={t("hero_categoryPlaceholder")} />
             </SelectTrigger>
             <SelectContent>
-              {categories.map((cat, index) => (
+              {categories?.map((cat, index) => (
                 <SelectItem key={index} value={cat.name}>
                   {t(`categories_${cat.name}`) ?? cat?.name}
                 </SelectItem>

@@ -51,7 +51,8 @@ async function fetchCompaniesWithJobs(
     if (jobFilters.level) params.append("jobLevel", jobFilters.level);
     if (jobFilters.category) params.append("jobCategory", jobFilters.category);
     if (jobFilters.location) params.append("jobLocation", jobFilters.location);
-    if (jobFilters.isActive !== undefined) params.append("jobActive", jobFilters.isActive.toString());
+    if (jobFilters.isActive !== undefined)
+      params.append("jobActive", jobFilters.isActive.toString());
     if (jobFilters.search) params.append("jobSearch", jobFilters.search);
   }
 
@@ -64,7 +65,9 @@ async function fetchCompaniesWithJobs(
   return response.json();
 }
 
-async function fetchCompanyWithJobs(companyId: string): Promise<CompanyWithJobs> {
+async function fetchCompanyWithJobs(
+  companyId: string
+): Promise<CompanyWithJobs> {
   const response = await fetch(`/api/companies/${companyId}?includeJobs=true`);
 
   if (!response.ok) {
@@ -83,8 +86,8 @@ export function useCompanies(page: number = 1, limit: number = 10) {
 }
 
 export function useCompaniesWithJobs(
-  page: number = 1, 
-  limit: number = 10, 
+  page: number = 1,
+  limit: number = 10,
   jobFilters?: JobFilters
 ) {
   return useQuery({
