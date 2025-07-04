@@ -55,11 +55,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         icon: Compass,
       },
       {
-        title: t("certificates"),
-        url: "/certificates",
-        icon: TicketCheck,
-      },
-      {
         title: t("shop"),
         url: "/courses",
         icon: ShoppingCart,

@@ -59,8 +59,9 @@
     "footer_categories_tech": "Teknologi & Pemrograman",
     "programs_noTitle": "Judul tidak tersedia",
     "programs_noDescription": "Deskripsi belum tersedia.",
-    "programs_noCategory": "Tidak Berkategori",
-    "programs_noLevel": "Level Tidak Diketahui",
-    "programs_noTeacher": "Instruktur tidak diketahui"
+    "programs_noCategory": "Kategori tidak tersedia",
+    "programs_noLevel": "Level tidak tersedia",
+    "programs_noTeacher": "Instruktur tidak tersedia",
+    "programs_noCompany": "Perusahaan tidak tersedia"
   }
 }

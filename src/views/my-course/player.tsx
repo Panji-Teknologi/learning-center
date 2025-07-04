@@ -179,7 +179,7 @@ export default function MyCoursePlayerPage() {
                 <CourseSidebar
                   course={course}
                   currentChapter={currentChapter}
-                  chapters={chapters}
+                  chapters={courseProgressData?.courseProgress || []}
                 />
               </div>
             </div>

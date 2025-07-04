@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import clsx from "clsx";
 import CareersShimmer from "@/views/landing/shimmer/careers-shimmer";
 import { useTranslations } from "next-intl";
 import { useCompaniesWithJobs } from "@/hooks/use-companies";
 import { Input } from "@/components/ui/input";
+import FilterSection from "./filter-section";
 
 const categories = [
   "Bisnis & Manajemen",
@@ -25,7 +25,6 @@ export default function AllCareersView() {
   const t = useTranslations("careers");
 
   const { data, isLoading: isLoadingCompanies } = useCompaniesWithJobs();
-
   const companies = data?.companies ?? [];
 
   const [selectedCompanies, setSelectedCompanies] = useState<string[]>([]);
@@ -35,6 +34,9 @@ export default function AllCareersView() {
   const [minPrice, setMinPrice] = useState<number | undefined>();
   const [maxPrice, setMaxPrice] = useState<number | undefined>();
   const [showFilter, setShowFilter] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   const toggleFilter = (
     filter: string,
@@ -82,6 +84,23 @@ export default function AllCareersView() {
     );
   });
 
+  const totalPages = Math.ceil(filteredJobs.length / itemsPerPage);
+  const paginatedJobs = filteredJobs.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [
+    selectedCompanies,
+    selectedCategories,
+    selectedLevels,
+    selectedLocations,
+    minPrice,
+    maxPrice,
+  ]);
+
   return (
     <section className="bg-white px-6">
       <div className="max-w-8xl mx-auto">
@@ -97,7 +116,7 @@ export default function AllCareersView() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
           <aside
             className={clsx(
-              "lg:col-span-1 space-y-6 shadow-lg transition-all duration-300",
+              "lg:col-span-1 space-y-6",
               "bg-sky-50 border border-sky-100 rounded-xl p-4 shadow-sm",
               showFilter ? "block" : "hidden lg:block"
             )}
@@ -106,96 +125,37 @@ export default function AllCareersView() {
               {t("careers_filter_title")}
             </h3>
 
-            <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-2">
-                {t("careers_filter_company")}
-              </h4>
-              <div className="space-y-1">
-                {companies.map((company) => (
-                  <label
-                    key={company.id}
-                    className="flex items-center gap-2 text-sm"
-                  >
-                    <Checkbox
-                      checked={selectedCompanies.includes(company.id)}
-                      onCheckedChange={() =>
-                        toggleFilter(
-                          company.id,
-                          selectedCompanies,
-                          setSelectedCompanies
-                        )
-                      }
-                    />
-                    <span>{company.name}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
+            <FilterSection
+              title={t("careers_filter_company")}
+              options={companies.map((c) => ({ value: c.id, label: c.name }))}
+              selected={selectedCompanies}
+              toggle={toggleFilter}
+              setSelected={setSelectedCompanies}
+            />
 
-            <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-2">
-                {t("careers_filter_category")}
-              </h4>
-              <div className="space-y-1">
-                {categories.map((cat) => (
-                  <label key={cat} className="flex items-center gap-2 text-sm">
-                    <Checkbox
-                      checked={selectedCategories.includes(cat)}
-                      onCheckedChange={() =>
-                        toggleFilter(
-                          cat,
-                          selectedCategories,
-                          setSelectedCategories
-                        )
-                      }
-                    />
-                    <span>{cat}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
+            <FilterSection
+              title={t("careers_filter_category")}
+              options={categories.map((c) => ({ value: c, label: c }))}
+              selected={selectedCategories}
+              toggle={toggleFilter}
+              setSelected={setSelectedCategories}
+            />
 
-            <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-2">
-                {t("careers_filter_level")}
-              </h4>
-              <div className="space-y-1">
-                {levels.map((lvl) => (
-                  <label key={lvl} className="flex items-center gap-2 text-sm">
-                    <Checkbox
-                      checked={selectedLevels.includes(lvl)}
-                      onCheckedChange={() =>
-                        toggleFilter(lvl, selectedLevels, setSelectedLevels)
-                      }
-                    />
-                    <span>{lvl}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
+            <FilterSection
+              title={t("careers_filter_level")}
+              options={levels.map((l) => ({ value: l, label: l }))}
+              selected={selectedLevels}
+              toggle={toggleFilter}
+              setSelected={setSelectedLevels}
+            />
 
-            <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-2">
-                {t("careers_filter_location")}
-              </h4>
-              <div className="space-y-1">
-                {uniqueLocations.map((loc) => (
-                  <label key={loc} className="flex items-center gap-2 text-sm">
-                    <Checkbox
-                      checked={selectedLocations.includes(loc)}
-                      onCheckedChange={() =>
-                        toggleFilter(
-                          loc,
-                          selectedLocations,
-                          setSelectedLocations
-                        )
-                      }
-                    />
-                    <span>{loc}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
+            <FilterSection
+              title={t("careers_filter_location")}
+              options={uniqueLocations.map((l) => ({ value: l, label: l }))}
+              selected={selectedLocations}
+              toggle={toggleFilter}
+              setSelected={setSelectedLocations}
+            />
 
             <div>
               <h4 className="text-sm font-medium text-gray-700 mb-2">
@@ -240,48 +200,78 @@ export default function AllCareersView() {
                 Array.from({ length: 6 }).map((_, idx) => (
                   <CareersShimmer key={idx} />
                 ))
-              ) : filteredJobs.length > 0 ? (
-                filteredJobs.map((job, idx) => {
-                  return (
-                    <Card
-                      key={idx}
-                      onClick={() =>
-                        router.push(
-                          `/careers/${job.jobKey}?company=${encodeURIComponent(
-                            job.companyName
-                          )}`
-                        )
-                      }
-                      className="cursor-pointer bg-white rounded-2xl border border-sky-100 shadow-md hover:shadow-xl transition-all duration-300 group"
-                    >
-                      <CardContent className="p-6">
-                        <h3 className="text-sm text-sky-600 font-semibold mb-1">
-                          {job.companyName}
-                        </h3>
-                        <h5 className="text-lg font-bold text-gray-800 mb-1 group-hover:text-sky-700">
-                          {job.title}
-                        </h5>
-                        <p className="text-sm text-gray-500 mb-1">
-                          📍 {job.location}
-                        </p>
-                        <p className="text-sm text-gray-700 mb-2">
-                          💰 Rp{job.salary.toLocaleString("id-ID")}
-                        </p>
-                        <p className="text-sm text-gray-600 leading-snug mb-2">
-                          {job.description}
-                        </p>
-                        <span className="inline-block text-xs font-medium px-2 py-0.5 bg-sky-100 text-sky-800 rounded">
-                          {job.level}
-                        </span>
-                      </CardContent>
-                    </Card>
-                  );
-                })
+              ) : paginatedJobs.length > 0 ? (
+                paginatedJobs.map((job, idx) => (
+                  <Card
+                    key={idx}
+                    onClick={() =>
+                      router.push(
+                        `/careers/${job.jobKey}?company=${encodeURIComponent(
+                          job.companyName
+                        )}`
+                      )
+                    }
+                    className="cursor-pointer bg-white rounded-2xl border border-sky-100 shadow-md hover:shadow-xl transition-all duration-300 group"
+                  >
+                    <CardContent className="p-6">
+                      <h3 className="text-sm text-sky-600 font-semibold mb-1">
+                        {job.companyName}
+                      </h3>
+                      <h5 className="text-lg font-bold text-gray-800 mb-1 group-hover:text-sky-700">
+                        {job.title}
+                      </h5>
+                      <p className="text-sm text-gray-500 mb-1">
+                        📍 {job.location}
+                      </p>
+                      <p className="text-sm text-gray-700 mb-2">
+                        💰 Rp{job.salary.toLocaleString("id-ID")}
+                      </p>
+                      <p className="text-sm text-gray-600 leading-snug mb-2">
+                        {job.description}
+                      </p>
+                      <span className="inline-block text-xs font-medium px-2 py-0.5 bg-sky-100 text-sky-800 rounded">
+                        {job.level}
+                      </span>
+                    </CardContent>
+                  </Card>
+                ))
               ) : (
                 <p className="text-gray-500 text-sm col-span-full">
                   {t("careers_not_found")}
                 </p>
               )}
+            </div>
+
+            <div className="flex justify-center mt-8 gap-2 flex-wrap">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 bg-white border border-sky-200 text-sky-700 rounded hover:bg-sky-100 disabled:opacity-50"
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }).map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentPage(i + 1)}
+                  className={`px-3 py-2 border rounded ${
+                    currentPage === i + 1
+                      ? "bg-sky-600 text-white"
+                      : "bg-white text-sky-700 border-sky-200 hover:bg-sky-100"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+              <button
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(p + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 bg-white border border-sky-200 text-sky-700 rounded hover:bg-sky-100 disabled:opacity-50"
+              >
+                Next
+              </button>
             </div>
           </div>
         </div>

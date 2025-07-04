@@ -13,6 +13,8 @@ import {
   Award,
   CheckCircle,
   Clock1,
+  PartyPopper,
+  Star,
 } from "lucide-react";
 import { CourseImageCard, AvatarImage } from "@/components/media/SecureImage";
 import StudentQuizzes from "./StudentQuizzes";
@@ -22,6 +24,7 @@ import ResourceDrawer from "./ResourceDrawer";
 import { useStudentResources } from "@/hooks/use-resources";
 import { useSearchParams } from "next/navigation";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import Link from "next/link";
 
 interface CourseSidebarProps {
   course: any;
@@ -60,12 +63,16 @@ export default function CourseSidebar({
   // Calculate progress
   const totalChapters = chapters.length;
   const completedChapters = chapters.filter(
-    (ch) => ch.userProgress?.[0]?.isCompleted
+    (ch) => ch.userProgress?.isCompleted
   ).length;
   const progressPercentage =
     totalChapters > 0
       ? Math.round((completedChapters / totalChapters) * 100)
       : 0;
+
+  console.log("progressPercentage : ", progressPercentage);
+  console.log("chapters : ", chapters);
+  console.log("currentChapter : ", currentChapter);
 
   return (
     <div className="space-y-6">
@@ -134,6 +141,79 @@ export default function CourseSidebar({
         </CardContent>
       </Card>
 
+      {/* Congratulations Card */}
+      {progressPercentage === 100 && (
+        <Card className="border-yellow-200 bg-yellow-50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2 text-yellow-700">
+              <PartyPopper className="h-4 w-4" />
+              Selamat!
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-yellow-700">
+                <CheckCircle className="h-4 w-4" />
+                <span className="text-sm font-medium">
+                  Kursus Berhasil Diselesaikan!
+                </span>
+              </div>
+
+              <p className="text-xs text-yellow-600">
+                Luar biasa! Anda telah menyelesaikan 100% dari semua materi
+                dalam kursus ini. Pengetahuan dan keterampilan baru siap untuk
+                dipraktikkan!
+              </p>
+
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full border-yellow-300 text-yellow-700 hover:bg-yellow-100"
+              >
+                <Star className="h-3 w-3 mr-1" />
+                Review Course
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Certificate Card */}
+      {progressPercentage === 100 && (
+        <Card className="border-green-200 bg-green-50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2 text-green-700">
+              <Award className="h-4 w-4" />
+              Sertifikat
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-green-700">
+                <CheckCircle className="h-4 w-4" />
+                <span className="text-sm font-medium">
+                  Dapatkan Sertifikat Anda
+                </span>
+              </div>
+
+              <p className="text-xs text-green-600 pb-3">
+                Unduh sertifikat penyelesaian kursus sebagai bukti pencapaian
+                Anda.
+              </p>
+
+              <Link href={`/certificate/${course.id}`}>
+                <Button
+                  size="sm"
+                  className="w-full bg-green-600 hover:bg-green-700"
+                >
+                  Lihat Sertifikat
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Quiz Card */}
       <StudentQuizzes chapterId={currentChapter?.id} />
 
@@ -181,37 +261,6 @@ export default function CourseSidebar({
                   </Button>
                 </div>
               ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Certificate Card */}
-      {progressPercentage === 100 && (
-        <Card className="border-green-200 bg-green-50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2 text-green-700">
-              <Award className="h-4 w-4" />
-              Sertifikat
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-green-700">
-                <CheckCircle className="h-4 w-4" />
-                <span className="text-sm font-medium">Kursus Selesai!</span>
-              </div>
-
-              <p className="text-xs text-green-600">
-                Selamat! Anda telah menyelesaikan semua bab dalam kursus ini.
-              </p>
-
-              <Button
-                size="sm"
-                className="w-full bg-green-600 hover:bg-green-700"
-              >
-                Unduh Sertifikat
-              </Button>
             </div>
           </CardContent>
         </Card>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -79,7 +79,7 @@ export default function CareersPage() {
             ? Array.from({ length: 6 }).map((_, idx) => (
                 <CareersShimmer key={idx} />
               ))
-            : filteredJobs.map((job, idx) => {
+            : filteredJobs.slice(0, 6).map((job, idx) => {
                 return (
                   <Card
                     key={idx}

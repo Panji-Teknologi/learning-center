@@ -270,6 +270,7 @@ export interface CourseListProps {
 }
 
 export type StudentCourse = {
+  teacherCompany: any;
   id: string;
   title: string;
   description?: string | null;

@@ -31,14 +31,18 @@ export default function ProgramsSection({
   const session = useSession();
 
   const filteredCourses = courses.filter((course) => {
-    const keywordMatch = course.title
-      ?.toLowerCase()
-      .includes(keyword.toLowerCase());
+    const keywordLower = keyword.toLowerCase();
+
+    const keywordMatch =
+      course.title?.toLowerCase().includes(keywordLower) ||
+      course.description?.toLowerCase().includes(keywordLower) ||
+      course.categoryName?.toLowerCase().includes(keywordLower) ||
+      course.level?.toLowerCase().includes(keywordLower) ||
+      course.teacherCompany?.name?.toLowerCase().includes(keywordLower);
 
     const categoryMatch =
       category.length === 0 ||
-      (course.categoryName &&
-        category.includes(course.categoryName.toLowerCase()));
+      course.categoryName?.toLowerCase() === category.toLowerCase();
 
     return keywordMatch && categoryMatch;
   });
@@ -59,7 +63,8 @@ export default function ProgramsSection({
         <Fragment>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-10">
             {filteredCourses.map((items, i) => {
-              console.log(items);
+              const companyName = items.teacherCompany?.name;
+
               return (
                 <Card
                   key={i}
@@ -79,6 +84,17 @@ export default function ProgramsSection({
                             {formatPrice(items.price ?? 0)}
                           </p>
                         </div>
+                      </div>
+
+                      <div className="mb-2">
+                        {companyName && (
+                          <Badge
+                            variant="outline"
+                            className="text-xs bg-indigo-50 text-indigo-700 border-indigo-200"
+                          >
+                            {companyName}
+                          </Badge>
+                        )}
                       </div>
 
                       <h3 className="font-semibold text-lg mb-1 text-gray-800 line-clamp-2">

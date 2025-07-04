@@ -105,6 +105,7 @@ export async function GET(request: NextRequest) {
       rating: course.rating,
       reviewCount: course.reviewCount || 0,
       language: course.language,
+      categoryName: course.category?.name,
       teacherName: course.teacher?.user?.name,
       teacherProfileUrl: course.teacher?.profileUrl,
       teacherCompany: course.teacher?.company,

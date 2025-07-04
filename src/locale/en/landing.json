@@ -59,8 +59,9 @@
     "footer_categories_tech": "Technology & Programming",
     "programs_noTitle": "Title not available",
     "programs_noDescription": "Description not available.",
-    "programs_noCategory": "Uncategorized",
-    "programs_noLevel": "Unknown Level",
-    "programs_noTeacher": "Unknown Instructor"
+    "programs_noCategory": "Category not available",
+    "programs_noLevel": "Level not available",
+    "programs_noTeacher": "Instructor not available",
+    "programs_noCompany": "Company not available"
   }
 }
