@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import CategoryShimmer from "./shimmer/category-shimmer";
 import { useTranslations } from "next-intl";
+import { useCategories } from "@/hooks/use-categories";
 
 interface HeroSectionProps {
   onSearch: (keyword: string, category: string) => void;
@@ -21,8 +22,8 @@ interface HeroSectionProps {
 export default function HeroSection({ onSearch }: HeroSectionProps) {
   const t = useTranslations("landing");
 
-  const { data, isLoading } = useAllCourses();
-  const categories = data?.categories ?? [];
+  const { data, isLoading } = useCategories();
+  const categories = data ?? [];
 
   const [keyword, setKeyword] = useState("");
   const [category, setCategory] = useState("");
@@ -51,7 +52,6 @@ export default function HeroSection({ onSearch }: HeroSectionProps) {
             ))}
       </div>
 
-      {/* Form pencarian */}
       <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center gap-4 max-w-5xl mx-auto">
         <Input
           placeholder={t("hero_searchPlaceholder")}

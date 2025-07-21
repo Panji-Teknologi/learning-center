@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import type { StudentCertificate } from "@/lib/types/student-detail";
 
 // Types
 export interface Certificate {
@@ -177,7 +178,9 @@ export const useCertificateManager = () => {
   const regenerateMutation = useCertificateRegenerate();
 
   // Download certificate
-  const downloadCertificate = async (certificate: Certificate) => {
+  const downloadCertificate = async (
+    certificate: Certificate | StudentCertificate
+  ) => {
     if (!certificate.pdfUrl) {
       toast.error("Certificate PDF not available");
       return;
@@ -218,11 +221,16 @@ export const useCertificateManager = () => {
   };
 
   // View certificate in new tab
-  const viewCertificate = async (certificate: {
+  const viewCertificate = async ({
+    pdfUrl,
+    certificateId,
+    directView = true,
+  }: {
     pdfUrl: string;
     certificateId: string;
+    directView?: boolean;
   }) => {
-    if (!certificate.pdfUrl) {
+    if (!pdfUrl) {
       toast.error("Certificate PDF not available");
       return;
     }
@@ -230,7 +238,7 @@ export const useCertificateManager = () => {
     try {
       // Get pre-signed URL for viewing
       const response = await fetch(
-        `/api/certificates/view?certificateId=${certificate.certificateId}`
+        `/api/certificates/view?certificateId=${certificateId}`
       );
 
       if (!response.ok) {
@@ -240,7 +248,10 @@ export const useCertificateManager = () => {
 
       const { url } = await response.json();
 
-      window.open(url, "_blank");
+      if (directView) {
+        window.open(url, "_blank");
+      }
+      return url;
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to view certificate"

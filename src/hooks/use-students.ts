@@ -141,6 +141,7 @@ export const useStudentOverview = (studentId: string | undefined) => {
           averageProgress: data.stats.averageProgress,
           performanceLevel: data.summary.performanceLevel,
           totalWatchTime: data.summary.totalWatchTimeFormatted,
+          certificates: data.certificates || [],
         } as StudentOverview)
       : null,
     isLoading,

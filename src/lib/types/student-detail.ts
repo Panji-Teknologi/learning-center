@@ -245,6 +245,7 @@ export interface StudentOverview {
   averageProgress: number;
   performanceLevel: "excellent" | "good" | "average" | "needs_improvement";
   totalWatchTime: string;
+  certificates: StudentCertificate[];
 }
 
 // Course Progress Stats

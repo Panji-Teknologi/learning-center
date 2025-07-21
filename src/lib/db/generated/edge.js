@@ -441,7 +441,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/mnt/e/work/tsi/learning-center/src/lib/db/generated",
+      "value": "/Users/ayuarmadani/Documents/Project Kantor/TSI Project/Website/2025/learning-center/src/lib/db/generated",
       "fromEnvVar": null
     },
     "config": {
@@ -450,17 +450,16 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "debian-openssl-3.0.x",
+        "value": "darwin-arm64",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/mnt/e/work/tsi/learning-center/src/lib/db/schema.prisma",
+    "sourceFilePath": "/Users/ayuarmadani/Documents/Project Kantor/TSI Project/Website/2025/learning-center/src/lib/db/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../../../.env"
+    "rootEnvPath": null
   },
   "relativePath": "..",
   "clientVersion": "6.10.1",
@@ -469,7 +468,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": false,
+  "postinstall": true,
   "inlineDatasources": {
     "db": {
       "url": {

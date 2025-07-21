@@ -47,8 +47,17 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    const user = await db.user.findUnique({
+      where: { email: session.user.email },
+      select: {
+        teacherProfile: true,
+        studentProfile: true,
+      },
+    });
+
+    const isTeacher = user?.teacherProfile !== null;
     // Verify the certificate belongs to the current user
-    if (certificate.student.user.email !== session.user.email) {
+    if (certificate.student.user.email !== session.user.email && !isTeacher) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
@@ -65,7 +74,7 @@ export async function GET(req: NextRequest) {
     // Expected key: "certificates/cert_CERT-202507-0001_1751641894006.pdf"
     const url = new URL(certificate.pdfUrl);
     const fullPath = url.pathname.substring(1); // Remove leading slash
-    
+
     // Remove bucket name from path to get the key
     const bucketName = "e-learning/";
     let key = fullPath;
