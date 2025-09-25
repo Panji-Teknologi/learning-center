@@ -544,7 +544,7 @@ const TeacherStudentDetail = () => {
                           {training.totalWorkTime ?? "-"}
                         </TableCell>
                         <TableCell>
-                          {training.totalWorkMs > 0 ? (
+                          {training.totalWorkMs > 0 && training.certificateNumber != null? (
                           <>
                             <div
                               className={`mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold border ${training.verdictColorCls}`}
@@ -719,7 +719,7 @@ const TeacherStudentDetail = () => {
                                             Peserta telah menyelesaikan course ini dengan total waktu selama{" "}
                                             <b>{spanText}</b>. (<b>{totalHours} Jam</b>)
                                           </p>
-                                          {training.totalWorkMs > 0 ? (
+                                          {training.totalWorkMs > 0 && training.certificateNumber != null? (
                                           <>
                                           <div className={`mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold border ${verdictColorCls}`}>
                                             {isGood ? (
