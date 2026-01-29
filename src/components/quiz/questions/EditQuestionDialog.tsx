@@ -47,9 +47,8 @@ import { useQuizDialogStore } from "@/store/use-store-quiz-dialog";
 // Edit Question Schema
 const editQuestionSchema = z.object({
   text: z.string().min(1, "Teks pertanyaan wajib diisi"),
-  type: z.enum(["MULTIPLE_CHOICE", "SINGLE_CHOICE", "TRUE_FALSE"], {
-    required_error: "Tipe pertanyaan wajib dipilih",
-  }),
+  type: z.enum(["MULTIPLE_CHOICE", "SINGLE_CHOICE", "TRUE_FALSE"])
+    .describe("Tipe pertanyaan wajib dipilih"),
   points: z.number().min(1, "Minimal 1 poin").max(100, "Maksimal 100 poin"),
   explanation: z.string().optional(),
 });

@@ -53,16 +53,16 @@ import { useQuizDialogStore } from "@/store/use-store-quiz-dialog";
 // Step 1 Schema - Question Details
 const questionSchema = z.object({
   text: z.string().min(1, "Teks pertanyaan wajib diisi"),
-  type: z.enum(["SINGLE_CHOICE", "TRUE_FALSE"], {
-    required_error: "Tipe pertanyaan wajib dipilih",
-  }),
+  type: z.enum(["SINGLE_CHOICE", "TRUE_FALSE"])
+    .describe("Tipe pertanyaan wajib dipilih"),
   points: z.preprocess((val) => {
-  if (val === "" || val === null || val === undefined) return undefined;
+    if (val === "" || val === null || val === undefined) return undefined;
     return Number(val);
   },
-  z.number({ required_error: "Poin wajib diisi" })
-  .min(1, "Minimal 1 poin")
-  .max(100, "Maksimal 100 poin")),
+  z.number()
+    .min(1, "Minimal 1 poin")
+    .max(100, "Maksimal 100 poin")
+    .optional()),
 
   explanation: z.string().optional(),
 });
@@ -311,7 +311,7 @@ const onCreateQuestion = async (values: QuestionFormData) => {
     const question = await createQuestionMutation.mutateAsync({
       text: values.text.trim(),
       type: values.type,
-      points: values.points,
+      points: values.points ?? 1,
       explanation: values.explanation?.trim() || undefined,
       quizId: createQuestionQuizId,
     });

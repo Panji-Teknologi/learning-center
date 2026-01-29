@@ -26,9 +26,8 @@ import { useTranslations } from "next-intl";
 const checkoutFormSchema = z.object({
   name: z.string().min(3, { message: "Name must be at least 3 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
-  paymentMethod: z.enum(["midtrans"], {
-    required_error: "Please select a payment method",
-  }),
+  paymentMethod: z.enum(["midtrans"])
+    .describe("Please select a payment method"),
 });
 
 type CheckoutFormValues = z.infer<typeof checkoutFormSchema>;
