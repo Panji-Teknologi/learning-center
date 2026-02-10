@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,38 +8,25 @@ import { Input } from "@/components/ui/input";
 import {
   Award,
   Download,
-  Eye,
   Search,
   Calendar,
   User,
-  BookOpen,
   Building,
-  // ExternalLink,
   RefreshCw,
   Loader2,
+  Eye,
+  BookOpen,
 } from "lucide-react";
 import Layout from "@/layout";
-import {
-  useCertificateManager,
-  useCertificateFilters,
-} from "@/hooks/use-certificates";
+import { useCertificates, useCertificateFilters } from "@/hooks/use-certificates";
+import { regenerateCertificate } from "@/actions/certificate";
+import { toast } from "sonner";
 
 export function CertificatesPage() {
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [regeneratingId, setRegeneratingId] = useState<string | null>(null);
 
-  const {
-    certificates,
-    isLoading,
-    error,
-    downloadCertificate,
-    viewCertificate,
-    // shareCertificate,
-    regenerateCertificate,
-    refreshCertificates,
-    downloadingId,
-    // sharingId,
-    isRegenerating,
-    regeneratingId,
-  } = useCertificateManager();
+  const { data, isLoading, error, refetch } = useCertificates();
 
   const {
     searchTerm,
@@ -49,7 +36,9 @@ export function CertificatesPage() {
     sortBy,
     setSortBy,
     filteredCertificates,
-  } = useCertificateFilters(certificates);
+  } = useCertificateFilters(data?.certificates || []);
+
+  const certificates = data?.certificates || [];
 
   const getLevelColor = (level: string) => {
     switch (level.toLowerCase()) {
@@ -64,7 +53,51 @@ export function CertificatesPage() {
     }
   };
 
-  // Handle error state
+  const handleDownload = async (certificate: typeof certificates[0]) => {
+    if (!certificate.pdfUrl) {
+      toast.error("Certificate PDF not available");
+      return;
+    }
+
+    try {
+      setDownloadingId(certificate.id);
+      window.open(certificate.pdfUrl, "_blank");
+      toast.success("Certificate downloaded!");
+    } catch (error) {
+      toast.error("Failed to download certificate");
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
+  const handleView = (pdfUrl: string) => {
+    if (pdfUrl) {
+      window.open(pdfUrl, "_blank");
+    }
+  };
+
+  const handleRegenerate = async (certificateId: string) => {
+    try {
+      setRegeneratingId(certificateId);
+      const result = await regenerateCertificate(certificateId);
+
+      if (result.success) {
+        toast.success("Certificate regenerated!");
+        refetch();
+      } else {
+        toast.error(result.error || "Failed to regenerate certificate");
+      }
+    } catch (error) {
+      toast.error("An error occurred");
+    } finally {
+      setRegeneratingId(null);
+    }
+  };
+
+  const handleRefresh = () => {
+    refetch();
+  };
+
   if (error) {
     return (
       <Layout>
@@ -79,7 +112,7 @@ export function CertificatesPage() {
                 {error.message ||
                   "Something went wrong while loading your certificates."}
               </p>
-              <Button onClick={refreshCertificates} variant="outline">
+              <Button onClick={handleRefresh} variant="outline">
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Try Again
               </Button>
@@ -110,7 +143,6 @@ export function CertificatesPage() {
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
@@ -129,7 +161,7 @@ export function CertificatesPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={refreshCertificates}
+              onClick={handleRefresh}
               disabled={isLoading}
             >
               <RefreshCw className="h-4 w-4" />
@@ -137,7 +169,6 @@ export function CertificatesPage() {
           </div>
         </div>
 
-        {/* Search and Filters */}
         <Card>
           <CardContent className="p-4">
             <div className="flex flex-col sm:flex-row gap-4">
@@ -174,7 +205,6 @@ export function CertificatesPage() {
           </CardContent>
         </Card>
 
-        {/* Certificates Grid */}
         {filteredCertificates.length === 0 ? (
           <Card>
             <CardContent className="p-12 text-center">
@@ -199,7 +229,7 @@ export function CertificatesPage() {
           </Card>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filteredCertificates.map((certificate) => (
+            {filteredCertificates.map((certificate: typeof certificates[0]) => (
               <Card
                 key={certificate.id}
                 className="overflow-hidden hover:shadow-lg transition-shadow"
@@ -228,7 +258,6 @@ export function CertificatesPage() {
                 </CardHeader>
 
                 <CardContent className="space-y-4">
-                  {/* Certificate Details */}
                   <div className="space-y-2 text-sm text-gray-600">
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
@@ -254,12 +283,9 @@ export function CertificatesPage() {
                     )}
                   </div>
 
-                  {/* Certificate Number */}
                   <div className="p-2 bg-gray-50 rounded text-xs text-gray-600 font-mono">
                     ID: {certificate.certificateNumber}
                   </div>
-
-                  {/* Action Buttons */}
 
                   <div className="flex gap-2">
                     {certificate.pdfUrl ? (
@@ -267,12 +293,7 @@ export function CertificatesPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() =>
-                            viewCertificate({
-                              certificateId: certificate.id,
-                              pdfUrl: certificate.pdfUrl || "",
-                            })
-                          }
+                          onClick={() => handleView(certificate.pdfUrl!)}
                           className="flex-1"
                         >
                           <Eye className="h-4 w-4 mr-1" />
@@ -282,7 +303,7 @@ export function CertificatesPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => downloadCertificate(certificate)}
+                          onClick={() => handleDownload(certificate)}
                           disabled={downloadingId === certificate.id}
                           className="flex-1"
                         >
@@ -301,57 +322,22 @@ export function CertificatesPage() {
                         variant="default"
                         size="sm"
                         className="flex-1"
-                        onClick={() => regenerateCertificate(certificate.id)}
+                        onClick={() => handleRegenerate(certificate.id)}
                         disabled={
-                          isRegenerating && regeneratingId === certificate.id
+                          regeneratingId === certificate.id
                         }
                       >
-                        {isRegenerating && regeneratingId === certificate.id ? (
+                        {regeneratingId === certificate.id ? (
                           <Loader2 className="h-4 w-4 mr-1 animate-spin" />
                         ) : (
                           <RefreshCw className="h-4 w-4 mr-1" />
                         )}
-                        {isRegenerating && regeneratingId === certificate.id
+                        {regeneratingId === certificate.id
                           ? "Generating..."
                           : "Generate Certificate"}
                       </Button>
                     )}
                   </div>
-                  {/* <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => shareCertificate(certificate)}
-                      disabled={sharingId === certificate.id}
-                      className="flex-1 text-blue-600 hover:text-blue-700"
-                    >
-                      {sharingId === certificate.id ? (
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      ) : (
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                      )}
-                      {sharingId === certificate.id ? "Sharing..." : "Share"}
-                    </Button>
-
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => regenerateCertificate(certificate.id)}
-                      disabled={
-                        isRegenerating && regeneratingId === certificate.id
-                      }
-                      className="flex-1 text-green-600 hover:text-green-700"
-                    >
-                      {isRegenerating && regeneratingId === certificate.id ? (
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      ) : (
-                        <RefreshCw className="h-4 w-4 mr-2" />
-                      )}
-                      {isRegenerating && regeneratingId === certificate.id
-                        ? "Regenerating..."
-                        : "Regenerate"}
-                    </Button>
-                  </div> */}
                 </CardContent>
               </Card>
             ))}

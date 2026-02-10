@@ -30,8 +30,8 @@ import { Award, CheckCircle, Clock, FileText, Play, User } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useCertificateManager } from "@/hooks/use-certificates";
 import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 
 interface CardEnrollmentProps {
   courseId: string;
@@ -40,7 +40,7 @@ interface CardEnrollmentProps {
 const CardEnrollment = ({ courseId }: CardEnrollmentProps) => {
   const t = useTranslations("courses");
 
-  const { viewCertificate } = useCertificateManager();
+  const [isViewingCert, setIsViewingCert] = useState(false);
   const createEnrollment = useCreateEnrollment();
   const queryClient = useQueryClient();
 
@@ -49,11 +49,25 @@ const CardEnrollment = ({ courseId }: CardEnrollmentProps) => {
   const { data, isLoading } = useCourse(courseId);
   const course = data?.course;
 
-  // Check if user is enrolled (studentId will be present and possibly a certificate)
   const isEnrolled = course?.isEnrolled;
   const hasCertificate = !!data?.certificate;
   const enrollment = data?.enrollment;
   const enrollmentStatus = enrollment?.status;
+
+  const viewCertificate = async (certificateId: string, pdfUrl: string) => {
+    if (!pdfUrl) {
+      return;
+    }
+
+    try {
+      setIsViewingCert(true);
+      window.open(pdfUrl, "_blank");
+    } catch (error) {
+      console.error("Failed to view certificate:", error);
+    } finally {
+      setIsViewingCert(false);
+    }
+  };
 
   if (isLoading) {
     return <CardEnrollmentSkeleton />;
@@ -218,16 +232,14 @@ const CardEnrollment = ({ courseId }: CardEnrollmentProps) => {
                   variant="outline"
                   className="w-full bg-green-100 hover:bg-green-200 text-green-600 hover:text-green-800"
                   onClick={() =>
-                    data?.certificate
-                      ? viewCertificate({
-                          certificateId: data.certificate.id || "",
-                          pdfUrl: data.certificate.pdfUrl ?? "",
-                        })
+                    data?.certificate?.pdfUrl
+                      ? viewCertificate(data.certificate.id, data.certificate.pdfUrl)
                       : null
                   }
+                  disabled={isViewingCert}
                 >
                   <Award className="h-4 w-4" />
-                  {t("view_certificate")}
+                  {isViewingCert ? t("loading") : t("view_certificate")}
                 </Button>
               )}
             </div>
